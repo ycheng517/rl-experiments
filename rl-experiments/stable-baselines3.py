@@ -12,6 +12,14 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines3.common.callbacks import CheckpointCallback
 
 
+class ParseKwargs(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, dict())
+        for value in values:
+            key, value = value.split("=")
+            getattr(namespace, self.dest)[key] = value
+
+
 parser = argparse.ArgumentParser(description="RL experiment runner")
 parser.add_argument(
     "--algorithm", type=str, default="PPO", help="the name of this experiment"
@@ -38,8 +46,11 @@ parser.add_argument(
     default="",
     help="optionally specify a model name (within the model dir) to load and continue training",
 )
+parser.add_argument("--algorithm-kwargs", nargs="*", action=ParseKwargs)
 args = parser.parse_args()
-experiment_name = f"{args.gym_id}__{args.algorithm}__{args.n_envs}_envs__{int(time.time())}"
+experiment_name = (
+    f"{args.gym_id}__{args.algorithm}__{args.n_envs}_envs__{int(time.time())}"
+)
 
 if args.wandb:
     import wandb
@@ -88,7 +99,11 @@ if args.load_model:
     model.set_env(env)
 else:
     model = algorithm(
-        "CnnPolicy", env, tensorboard_log=tensorboard_dir, verbose=1
+        "CnnPolicy",
+        env,
+        tensorboard_log=tensorboard_dir,
+        verbose=1,
+        **args.algorithm_kwargs,
     )
 
 # Setup callbacks
