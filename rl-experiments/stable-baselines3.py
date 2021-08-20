@@ -3,6 +3,7 @@ import os
 import time
 
 import gym
+import numpy as np
 import pybullet_envs
 import stable_baselines3
 from stable_baselines3.common.monitor import Monitor
@@ -11,6 +12,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines3.common.callbacks import CheckpointCallback
 
 from utils import ParseKwargs
+from wrappers.channels_first_wrapper import ChannelsFirstWrapper
 
 
 parser = argparse.ArgumentParser(description="RL experiment runner")
@@ -65,10 +67,12 @@ tensorboard_dir = f"{log_dir}/tensorboard"
 os.makedirs(tensorboard_dir, exist_ok=True)
 
 # Create and wrap the environment
-env = make_vec_env(args.gym_id, n_envs=args.n_envs, monitor_dir=log_dir)
-env = gym.make(args.gym_id)
-env = Monitor(env, log_dir)
-env = DummyVecEnv([lambda: env])
+env = make_vec_env(
+    args.gym_id,
+    n_envs=args.n_envs,
+    monitor_dir=log_dir,
+    wrapper_class=ChannelsFirstWrapper,
+)
 env = VecNormalize(env, norm_obs=True, clip_obs=10.0)
 
 # Create the model
@@ -91,6 +95,8 @@ if args.load_model:
     )
     model.set_env(env)
 else:
+    if args.algorithm_kwargs is None:
+        args.algorithm_kwargs = dict()
     model = algorithm(
         "CnnPolicy",
         env,

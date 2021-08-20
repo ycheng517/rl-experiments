@@ -1,5 +1,6 @@
 import argparse
 
+
 def parse_val(val):
     try:
         int_val = int(val)
@@ -14,6 +15,7 @@ def parse_val(val):
         pass
 
     return val
+
 
 def is_int(val):
     try:
