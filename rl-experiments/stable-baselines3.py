@@ -4,20 +4,13 @@ import time
 
 import gym
 import pybullet_envs
-
 import stable_baselines3
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines3.common.callbacks import CheckpointCallback
 
-
-class ParseKwargs(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, dict())
-        for value in values:
-            key, value = value.split("=")
-            getattr(namespace, self.dest)[key] = value
+from utils import ParseKwargs
 
 
 parser = argparse.ArgumentParser(description="RL experiment runner")
