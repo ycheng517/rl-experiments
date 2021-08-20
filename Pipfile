@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+black = "==21.7b0"
+numpy = "*"
+pybullet = "*"
+stable-baselines3 = {extras = ["extra"], version = "*"}
+wandb = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
